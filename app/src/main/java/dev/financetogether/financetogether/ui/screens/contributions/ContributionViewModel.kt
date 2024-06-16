@@ -26,7 +26,7 @@ class ContributionViewModel(
     fun addContribution(contribution: Contribution) {
         viewModelScope.launch {
             contributionRepository.addContribution(contribution)
-            loadContributions(contribution.groupId) // Refresh the contributions list
+            loadContributions(contribution.groupId)
         }
     }
 }

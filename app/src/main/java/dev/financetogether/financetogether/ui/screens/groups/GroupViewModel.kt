@@ -43,7 +43,7 @@ class GroupViewModel(
     fun deleteGroup(groupId: String) {
         viewModelScope.launch {
             groupRepository.deleteGroup(groupId)
-            loadGroups() // Refresh the group list
+            loadGroups()
         }
     }
 
@@ -66,15 +66,15 @@ class GroupViewModel(
                 return@launch
             }
             groupRepository.addMemberToGroup(groupId, memberEmail)
-            loadGroups() // Refresh the group list
-            _emailError.value = null // Clear any previous error
+            loadGroups()
+            _emailError.value = null
         }
     }
 
     fun updateGroup(groupId: String, newName: String, newDescription: String, newMembers: List<String>) {
         viewModelScope.launch {
             groupRepository.updateGroup(groupId, newName, newDescription, newMembers)
-            loadGroups() // Refresh the group list
+            loadGroups()
         }
     }
 
@@ -90,7 +90,7 @@ class GroupViewModel(
     fun createGroup(group: Group) {
         viewModelScope.launch {
             groupRepository.createGroup(group)
-            loadGroups() // Refresh the group list
+            loadGroups()
         }
     }
 
@@ -104,7 +104,7 @@ class GroupViewModel(
     fun removeMemberFromGroup(groupId: String, memberEmail: String) {
         viewModelScope.launch {
             groupRepository.removeMemberFromGroup(groupId, memberEmail)
-            loadGroups() // Refresh the group list
+            loadGroups()
         }
     }
 
@@ -119,7 +119,7 @@ class GroupViewModel(
                     amount = amount
                 )
                 groupRepository.addContribution(groupId, contribution)
-                loadContributions(groupId) // Refresh the contributions list
+                loadContributions(groupId)
                 _totalContributions.value = getTotalContributions(groupId).value // Update total contributions
             }
         }

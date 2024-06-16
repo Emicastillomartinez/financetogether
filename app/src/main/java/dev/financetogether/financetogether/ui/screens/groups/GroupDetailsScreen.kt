@@ -200,7 +200,7 @@ fun GroupDetailsScreen(
                 Button(
                     onClick = {
                         groupViewModel.deleteGroup(groupId)
-                        navController.popBackStack() // Navigate back after deletion
+                        navController.popBackStack()
                         showDeleteGroupDialog = false
                     }
                 ) {

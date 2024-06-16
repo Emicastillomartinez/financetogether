@@ -51,7 +51,7 @@ fun AddContributionScreen(navController: NavController, contributionViewModel: C
                     onClick = {
                         val contribution = Contribution(
                             groupId = groupId,
-                            userEmail = "", // Aquí puedes obtener el correo del usuario logueado
+                            userEmail = "",
                             amount = amount.toDoubleOrNull() ?: 0.0
                         )
                         contributionViewModel.addContribution(contribution)
