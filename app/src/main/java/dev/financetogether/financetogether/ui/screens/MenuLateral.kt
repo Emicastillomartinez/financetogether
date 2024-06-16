@@ -13,14 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import dev.financetogether.financetogether.ui.components.GroupItem
 import dev.financetogether.financetogether.ui.components.GroupItemCompact
 import dev.financetogether.financetogether.ui.screens.groups.GroupViewModel
 
 @Composable
 fun MenuLateral(navController: NavController, groupViewModel: GroupViewModel, currentUserEmail: String) {
     val groups = groupViewModel.groups.collectAsState().value
-    val userGroups = groups.filter { it.members.contains(currentUserEmail) }
     ModalDrawerSheet {
         Column(
             modifier = Modifier
@@ -33,7 +31,11 @@ fun MenuLateral(navController: NavController, groupViewModel: GroupViewModel, cu
                 color = Color.Black,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-            Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(bottom = 16.dp))
+            Divider(
+                color = Color.Gray,
+                thickness = 1.dp,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
             Button(onClick = { navController.navigate("CreateGroup") }) {
                 Text("Crear Grupo")
             }
@@ -45,7 +47,7 @@ fun MenuLateral(navController: NavController, groupViewModel: GroupViewModel, cu
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
-            userGroups.forEach { group ->
+            groups.forEach { group ->
                 GroupItemCompact(group = group, navController = navController)
             }
         }

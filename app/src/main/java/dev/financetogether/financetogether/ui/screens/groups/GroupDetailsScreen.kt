@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,8 +32,15 @@ fun GroupDetailsScreen(
     var newMemberEmail by remember { mutableStateOf("") }
     var showAddContributionDialog by remember { mutableStateOf(false) }
     var contributionAmount by remember { mutableStateOf("") }
-    var showDeleteGroupDialog by remember { mutableStateOf(false) }
     val emailError by groupViewModel.emailError.collectAsState()
+    val contributions by groupViewModel.contributions.collectAsState()
+    val totalContributions by groupViewModel.totalContributions.collectAsState()
+    var contributionError by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(groupId) {
+        groupViewModel.loadContributions(groupId)
+        groupViewModel.getTotalContributions(groupId)
+    }
 
     Scaffold(
         topBar = {
@@ -53,7 +59,8 @@ fun GroupDetailsScreen(
                     modifier = Modifier
                         .padding(padding)
                         .padding(16.dp)
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
@@ -103,15 +110,6 @@ fun GroupDetailsScreen(
                                         tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
-                                if (it.adminEmail == currentUserEmail) {
-                                    IconButton(onClick = { showDeleteGroupDialog = true }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            contentDescription = "Eliminar grupo",
-                                            tint = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                }
                             }
                         }
                     }
@@ -156,6 +154,51 @@ fun GroupDetailsScreen(
                             Text("Añadir Miembro")
                         }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Total Contribuciones: $totalContributions",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Contribuciones",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    contributions.forEach { contribution ->
+                        Card(
+                            shape = RoundedCornerShape(8.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F0F0)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Usuario: ${contribution.userName}",
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                                Text(
+                                    text = "Cantidad: ${contribution.amount}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -167,8 +210,14 @@ fun GroupDetailsScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        groupViewModel.addContribution(groupId, contributionAmount.toDouble())
-                        showAddContributionDialog = false
+                        val amount = contributionAmount.toDoubleOrNull()
+                        if (amount != null) {
+                            groupViewModel.addContribution(groupId, amount)
+                            showAddContributionDialog = false
+                            contributionError = null
+                        } else {
+                            contributionError = "Por favor, introduzca una cantidad válida."
+                        }
                     }
                 ) {
                     Text("Añadir")
@@ -186,35 +235,19 @@ fun GroupDetailsScreen(
                         value = contributionAmount,
                         onValueChange = { contributionAmount = it },
                         label = { Text("Cuantia de la contribución") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = contributionError != null
                     )
+                    if (contributionError != null) {
+                        Text(
+                            text = contributionError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
                 }
             }
         )
     }
-
-    if (showDeleteGroupDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteGroupDialog = false },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        groupViewModel.deleteGroup(groupId)
-                        navController.popBackStack()
-                        showDeleteGroupDialog = false
-                    }
-                ) {
-                    Text("Eliminar")
-                }
-            },
-            dismissButton = {
-                Button(onClick = { showDeleteGroupDialog = false }) {
-                    Text("Cancelar")
-                }
-            },
-            title = { Text("Eliminar Grupo") },
-            text = { Text("¿Estás seguro de que deseas eliminar este grupo? Esta acción no se puede deshacer.") }
-        )
-    }
 }
-
