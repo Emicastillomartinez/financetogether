@@ -110,14 +110,16 @@ class GroupViewModel(
                 )
                 groupRepository.addContribution(groupId, contribution)
                 loadContributions(groupId) // Refresh the contributions list
+                _totalContributions.value = getTotalContributions(groupId).value // Update total contributions
             }
         }
     }
 
-    private fun loadContributions(groupId: String) {
+    fun loadContributions(groupId: String) {
         viewModelScope.launch {
             val contributions = groupRepository.getContributions(groupId)
             _contributions.value = contributions
+            _totalContributions.value = contributions.sumOf { it.amount } // Update total contributions
         }
     }
 
@@ -129,5 +131,4 @@ class GroupViewModel(
         }
         return totalFlow.asStateFlow()
     }
-
 }

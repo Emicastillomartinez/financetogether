@@ -1,9 +1,10 @@
-// GroupDetailsScreen.kt
 package dev.financetogether.financetogether.ui.screens.groups
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
@@ -32,6 +33,15 @@ fun GroupDetailsScreen(
     var showAddContributionDialog by remember { mutableStateOf(false) }
     var contributionAmount by remember { mutableStateOf("") }
     val emailError by groupViewModel.emailError.collectAsState()
+    val contributions by groupViewModel.contributions.collectAsState()
+    val totalContributions by groupViewModel.totalContributions.collectAsState()
+    var contributionError by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(groupId) {
+        groupViewModel.loadContributions(groupId)
+        groupViewModel.getTotalContributions(groupId)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -49,7 +59,8 @@ fun GroupDetailsScreen(
                     modifier = Modifier
                         .padding(padding)
                         .padding(16.dp)
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
@@ -143,6 +154,51 @@ fun GroupDetailsScreen(
                             Text("Añadir Miembro")
                         }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Total Contribuciones: $totalContributions",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Contribuciones",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    contributions.forEach { contribution ->
+                        Card(
+                            shape = RoundedCornerShape(8.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F0F0)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Usuario: ${contribution.userName}",
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                                Text(
+                                    text = "Cantidad: ${contribution.amount}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -154,8 +210,14 @@ fun GroupDetailsScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        groupViewModel.addContribution(groupId, contributionAmount.toDouble())
-                        showAddContributionDialog = false
+                        val amount = contributionAmount.toDoubleOrNull()
+                        if (amount != null) {
+                            groupViewModel.addContribution(groupId, amount)
+                            showAddContributionDialog = false
+                            contributionError = null
+                        } else {
+                            contributionError = "Por favor, introduzca una cantidad válida."
+                        }
                     }
                 ) {
                     Text("Añadir")
@@ -172,9 +234,18 @@ fun GroupDetailsScreen(
                     TextField(
                         value = contributionAmount,
                         onValueChange = { contributionAmount = it },
-                        label = { Text("Monto de la contribución") },
-                        modifier = Modifier.fillMaxWidth()
+                        label = { Text("Cuantia de la contribución") },
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = contributionError != null
                     )
+                    if (contributionError != null) {
+                        Text(
+                            text = contributionError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
                 }
             }
         )
