@@ -24,6 +24,7 @@ import dev.financetogether.financetogether.ui.screens.groups.EditGroupScreen
 import dev.financetogether.financetogether.ui.screens.groups.GroupDetailsScreen
 import dev.financetogether.financetogether.ui.screens.groups.GroupsScreen
 import dev.financetogether.financetogether.ui.screens.home.homeScreen
+import dev.financetogether.financetogether.ui.screens.profile.editProfileScreen
 import dev.financetogether.financetogether.ui.screens.profile.profileScreen
 import dev.financetogether.financetogether.ui.screens.users.emailSignInScreen
 import dev.financetogether.financetogether.ui.screens.users.registerScreen
@@ -88,6 +89,7 @@ fun appScaffold(navController: NavHostController) {
                 composable("Register") { registerScreen(navController, userViewModel) }
                 composable("CreateGroup") { CreateGroupScreen(navController, groupViewModel, userViewModel) }
                 composable(BottomNavItem.Profile.title) { profileScreen(navController, userViewModel) }
+                composable("EditProfile") { editProfileScreen(navController, userViewModel) }
                 composable(
                     route = "UserEmailCreationScreen/{email}",
                     arguments = listOf(navArgument("email") { type = NavType.StringType }),

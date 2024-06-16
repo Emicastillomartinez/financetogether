@@ -23,7 +23,7 @@ class FirestoreUserRepository(private val db: FirebaseFirestore) : UserRepositor
                 .whereEqualTo("email", email)
                 .get()
                 .await()
-        return !querySnapshot.isEmpty // Retorna true si encuentra documentos con ese email
+        return !querySnapshot.isEmpty
     }
 
     suspend fun updateUserProfile(user: User) {
