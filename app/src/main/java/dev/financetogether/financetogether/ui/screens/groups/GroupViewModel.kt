@@ -36,6 +36,10 @@ class GroupViewModel(
     init {
         loadGroups()
     }
+
+    fun getCurrentUserEmail(): String? {
+        return userViewModel.currentUser.value?.email
+    }
     fun deleteGroup(groupId: String) {
         viewModelScope.launch {
             groupRepository.deleteGroup(groupId)

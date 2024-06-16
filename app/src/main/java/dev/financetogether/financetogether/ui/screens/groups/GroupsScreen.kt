@@ -14,6 +14,7 @@ import dev.financetogether.financetogether.ui.components.GroupItem
 @Composable
 fun GroupsScreen(navController: NavController, groupViewModel: GroupViewModel) {
     val groups = groupViewModel.groups.collectAsState().value
+    val currentUserEmail = groupViewModel.getCurrentUserEmail()
 
     Scaffold(
         topBar = {
@@ -21,7 +22,7 @@ fun GroupsScreen(navController: NavController, groupViewModel: GroupViewModel) {
         },
         content = { padding ->
             Column(modifier = Modifier.padding(padding).padding(16.dp)) {
-                groups.forEach { group ->
+                groups.filter { it.members.contains(currentUserEmail) }.forEach { group ->
                     GroupItem(group, navController)
                 }
             }
