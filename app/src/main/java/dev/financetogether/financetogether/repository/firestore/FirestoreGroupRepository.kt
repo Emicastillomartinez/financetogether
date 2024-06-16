@@ -20,6 +20,15 @@ class FirestoreGroupRepository(private val db: FirebaseFirestore) {
         return document.toObject(Group::class.java)
     }
 
+    suspend fun deleteGroup(groupId: String) {
+        val contributionsRef = db.collection("groups").document(groupId).collection("contributions")
+        val contributions = contributionsRef.get().await()
+        for (contribution in contributions.documents) {
+            contributionsRef.document(contribution.id).delete().await()
+        }
+        db.collection("groups").document(groupId).delete().await()
+    }
+
     suspend fun createGroup(group: Group) {
         db.collection("groups").add(group).await()
     }

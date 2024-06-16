@@ -36,6 +36,12 @@ class GroupViewModel(
     init {
         loadGroups()
     }
+    fun deleteGroup(groupId: String) {
+        viewModelScope.launch {
+            groupRepository.deleteGroup(groupId)
+            loadGroups() // Refresh the group list
+        }
+    }
 
     private fun loadGroups() {
         viewModelScope.launch {
