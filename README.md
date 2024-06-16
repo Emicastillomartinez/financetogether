@@ -15,4 +15,4 @@ FinanceTogether es una aplicación móvil de código abierto diseñada para la g
 Para empezar a utilizar o contribuir a FinanceTogether, clona el repositorio y sigue las instrucciones de instalación.
 
 ```bash
-git clone https://github.com/username/FinanceTogether.git
+git clone git@github.com:Emicastillomartinez/financetogether.git
