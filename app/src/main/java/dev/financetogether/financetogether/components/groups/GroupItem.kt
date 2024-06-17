@@ -10,15 +10,25 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import dev.financetogether.financetogether.data.model.Group
+import dev.financetogether.financetogether.ui.screens.groups.GroupViewModel
+import dev.financetogether.financetogether.util.Utils.formatCurrency
 
 @Composable
-fun GroupItem(group: Group, navController: NavController) {
+fun GroupItem(group: Group, navController: NavController, groupViewModel: GroupViewModel) {
+    val totalContributions by groupViewModel.totalContributions.collectAsState()
+
+    LaunchedEffect(group.id) {
+        groupViewModel.getTotalContributions(group.id)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -38,6 +48,7 @@ fun GroupItem(group: Group, navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = group.description, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             Text(text = "Miembros: ${group.members.size}", style = MaterialTheme.typography.bodySmall, color = Color.White)
+
         }
     }
 }

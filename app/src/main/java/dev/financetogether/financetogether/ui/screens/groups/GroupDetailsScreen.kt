@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import dev.financetogether.financetogether.ui.components.MemberItem
+import dev.financetogether.financetogether.util.Utils.formatCurrency
+import java.text.NumberFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +40,7 @@ fun GroupDetailsScreen(
     val contributions by groupViewModel.contributions.collectAsState()
     val totalContributions by groupViewModel.totalContributions.collectAsState()
     var contributionError by remember { mutableStateOf<String?>(null) }
+    var showDeleteGroupDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(groupId) {
         groupViewModel.loadContributions(groupId)
@@ -110,6 +115,14 @@ fun GroupDetailsScreen(
                                         tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
+
+                                IconButton(onClick = { showDeleteGroupDialog = true }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Borrar grupo",
+                                        tint = Color.Red
+                                    )
+                                }
                             }
                         }
                     }
@@ -156,7 +169,7 @@ fun GroupDetailsScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Total Contribuciones: $totalContributions",
+                        text = "Total Contribuciones: ${formatCurrency(totalContributions)}",
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -193,7 +206,7 @@ fun GroupDetailsScreen(
                                     )
                                 )
                                 Text(
-                                    text = "Cantidad: ${contribution.amount}",
+                                    text = "Cantidad: ${formatCurrency(contribution.amount)}",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
@@ -250,4 +263,29 @@ fun GroupDetailsScreen(
             }
         )
     }
+
+    if (showDeleteGroupDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteGroupDialog = false },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        groupViewModel.deleteGroup(groupId)
+                        navController.popBackStack()
+                        showDeleteGroupDialog = false
+                    }
+                ) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showDeleteGroupDialog = false }) {
+                    Text("Cancelar")
+                }
+            },
+            title = { Text("Confirmar Eliminación") },
+            text = { Text("¿Está seguro de que desea eliminar este grupo y todas sus contribuciones?") }
+        )
+    }
 }
+
